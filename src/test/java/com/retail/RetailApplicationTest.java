@@ -1,4 +1,4 @@
-package com.college;
+package com.retail;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-class CollegeApplicationTest {
+class RetailApplicationTest {
     private final InputStreamState inputStreamState = new InputStreamState();
     private final OutputStreamState outputStreamState = new OutputStreamState();
 
@@ -32,11 +32,11 @@ class CollegeApplicationTest {
     }
 
     @Test
-    void addScheduleFromCsvReplacesExistingDataAndSavesParsedRows() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
-        CollegeApplication app = appWithRepository(repository);
+    void addOrdersFromCsvReplacesExistingDataAndSavesParsedRows() throws Exception {
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
+        RetailApplication app = appWithRepository(repository);
 
-        invokePrivate(app, "addScheduleFromCsv");
+        invokePrivate(app, "addOrdersFromCsv");
 
         verify(repository, times(1)).deleteAll();
         verify(repository, times(1)).saveAll(anyList());
@@ -44,50 +44,50 @@ class CollegeApplicationTest {
     }
 
     @Test
-    void addScheduleFromCsvPrintsFailureMessageWhenRepositoryThrows() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
+    void addOrdersFromCsvPrintsFailureMessageWhenRepositoryThrows() throws Exception {
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
         doThrow(new RuntimeException("repository unavailable")).when(repository).deleteAll();
-        CollegeApplication app = appWithRepository(repository);
+        RetailApplication app = appWithRepository(repository);
 
-        invokePrivate(app, "addScheduleFromCsv");
+        invokePrivate(app, "addOrdersFromCsv");
 
         assertTrue(outputStreamState.value().contains("CSV"));
         verify(repository, times(1)).deleteAll();
     }
 
     @Test
-    void viewAllSchedulesPrintsNotFoundForEmptyRepository() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
+    void viewAllOrdersPrintsNotFoundForEmptyRepository() throws Exception {
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
         when(repository.findAll()).thenReturn(Collections.emptyList());
-        CollegeApplication app = appWithRepository(repository);
+        RetailApplication app = appWithRepository(repository);
 
-        invokePrivate(app, "viewAllSchedules");
+        invokePrivate(app, "viewAllOrders");
 
         assertTrue(outputStreamState.value().contains("не знайдено"));
         verify(repository, times(1)).findAll();
     }
 
     @Test
-    void viewAllSchedulesPrintsRowsWhenRepositoryHasData() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
-        Schedule schedule = new com.college.support.ScheduleTestDataBuilder().build();
-        when(repository.findAll()).thenReturn(List.of(schedule));
-        CollegeApplication app = appWithRepository(repository);
+    void viewAllOrdersPrintsRowsWhenRepositoryHasData() throws Exception {
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
+        RetailOrder order = new com.retail.support.RetailOrderTestDataBuilder().build();
+        when(repository.findAll()).thenReturn(List.of(order));
+        RetailApplication app = appWithRepository(repository);
 
-        invokePrivate(app, "viewAllSchedules");
+        invokePrivate(app, "viewAllOrders");
 
         String output = outputStreamState.value();
         assertTrue(output.contains("Знайдено 1"));
-        assertTrue(output.contains("Schedule {"));
+        assertTrue(output.contains("RetailOrder {"));
         verify(repository, times(1)).findAll();
     }
 
     @Test
-    void dropAllSchedulesDeletesDataAndPrintsMessage() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
-        CollegeApplication app = appWithRepository(repository);
+    void dropAllOrdersDeletesDataAndPrintsMessage() throws Exception {
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
+        RetailApplication app = appWithRepository(repository);
 
-        invokePrivate(app, "dropAllSchedules");
+        invokePrivate(app, "dropAllOrders");
 
         verify(repository, times(1)).deleteAll();
         assertTrue(outputStreamState.value().contains("видалено"));
@@ -95,9 +95,9 @@ class CollegeApplicationTest {
 
     @Test
     void runExecutesChoicesAndStopsWhenInputIsExhausted() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
         when(repository.findAll()).thenReturn(Collections.emptyList());
-        CollegeApplication app = appWithRepository(repository);
+        RetailApplication app = appWithRepository(repository);
         inputStreamState.replace("1\n2\n3\nx\n");
 
         assertThrows(NoSuchElementException.class, () -> app.run());
@@ -109,8 +109,8 @@ class CollegeApplicationTest {
 
     @Test
     void runPrintsMessageForOutOfRangeChoice() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
-        CollegeApplication app = appWithRepository(repository);
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
+        RetailApplication app = appWithRepository(repository);
         inputStreamState.replace("5\nx\n");
 
         assertThrows(NoSuchElementException.class, () -> app.run());
@@ -120,8 +120,8 @@ class CollegeApplicationTest {
 
     @Test
     void runPrintsValidationMessageForNonNumericInput() throws Exception {
-        ScheduleRepository repository = mock(ScheduleRepository.class);
-        CollegeApplication app = appWithRepository(repository);
+        RetailOrderRepository repository = mock(RetailOrderRepository.class);
+        RetailApplication app = appWithRepository(repository);
         inputStreamState.replace("abc\n");
 
         assertThrows(NoSuchElementException.class, () -> app.run());
@@ -131,16 +131,16 @@ class CollegeApplicationTest {
         assertTrue(output.contains("1 до 4"));
     }
 
-    private static CollegeApplication appWithRepository(ScheduleRepository repository) throws Exception {
-        CollegeApplication app = new CollegeApplication();
-        Field field = CollegeApplication.class.getDeclaredField("scheduleRepository");
+    private static RetailApplication appWithRepository(RetailOrderRepository repository) throws Exception {
+        RetailApplication app = new RetailApplication();
+        Field field = RetailApplication.class.getDeclaredField("retailOrderRepository");
         field.setAccessible(true);
         field.set(app, repository);
         return app;
     }
 
-    private static void invokePrivate(CollegeApplication app, String methodName) throws Exception {
-        Method method = CollegeApplication.class.getDeclaredMethod(methodName);
+    private static void invokePrivate(RetailApplication app, String methodName) throws Exception {
+        Method method = RetailApplication.class.getDeclaredMethod(methodName);
         method.setAccessible(true);
         method.invoke(app);
     }
