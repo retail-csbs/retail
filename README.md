@@ -1,4 +1,4 @@
-﻿# Приклад Java-програми ведення розкладу коледжу з використанням СКБД MongoDB
+﻿# Приклад Java-програми управління замовленнями роздрібної торгівлі з використанням СКБД MongoDB
 ## Кроки для виконання
 1. Завантажте і встановіть Java Development Kit 17 (або новішу версію) для Windows.
 1. Завантажте Maven з https://dlcdn.apache.org/maven/maven-3/3.8.9/binaries/apache-maven-3.8.9-bin.zip і розпакуйте його на локальний комп'ютер.
@@ -6,7 +6,7 @@
 1. В Windows в параметрах системи додайте `;<шлях до папки з Maven>\bin` в системну змінну PATH.
 1. Встановіть СКБД MongoDB Community Server вибрати варіант установки Complete -> "Run service as Network Service user"
 1. Встановіть MongoDB Compass (GUI).
-1. Створіть базу даних `college-db` і колекцію в ній `college-schedule`.
+1. Створіть базу даних `retail-db` і колекцію в ній `retail-orders`.
 1. Зберіть програму використовуючи команду `mvn clean install`.
 1. Запустіть програму за допомогою команди `mvn spring-boot:run`.
 1. Відкрийте веб-браузер і перейдіть за адресою `http://localhost:8081` для перегляду розкладу.
@@ -16,21 +16,21 @@
 Після запуску програми веб-інтерфейс доступний у браузері за адресою `http://localhost:8081`.
 
 Сторінки:
-1. **Головна сторінка** (`http://localhost:8081`) — відображає розклад коледжу у вигляді таблиці з усіма колонками.
-1. **Додати заняття** (`http://localhost:8081/add`) — форма для додавання нового рядка до розкладу.
+1. **Головна сторінка** (`http://localhost:8081`) — відображає замовлення у вигляді таблиці з усіма колонками.
+1. **Додати замовлення** (`http://localhost:8081/add`) — форма для додавання нового замовлення.
 
 ## Docker
 
 Локальне збирання образу Docker-контейнера:
 
 ```bash
-docker build -f deploy/Dockerfile -t college-schedule .
+docker build -f deploy/Dockerfile -t retail-orders .
 ```
 
 Локальний запуск образу Docker-контейнера:
 
 ```bash
-docker run --rm -p 8081:8081 -e MONGO_URI=mongodb://host.docker.internal:27017/college-db college-schedule
+docker run --rm -p 8081:8081 -e MONGO_URI=mongodb://host.docker.internal:27017/retail-db retail-orders
 ```
 
 Після запуску застосунок буде доступний за адресою `http://localhost:8081`.
@@ -45,18 +45,18 @@ docker run --rm -p 8081:8081 -e MONGO_URI=mongodb://host.docker.internal:27017/c
 set GITHUB_TOKEN=your-github-token
 echo %GITHUB_TOKEN% | docker login ghcr.io -u your-github-username --password-stdin
 
-docker pull ghcr.io/chdbc-samples/college-schedule:0.3.0-snapshot
+docker pull ghcr.io/chdbc-samples/retail-orders:0.3.0-snapshot
 ```
 
 Запуск контейнера з образу Docker-контейнера, опублікованого у GitHub Packages:
 
 ```bash
-docker run --rm -p 8081:8081 -e MONGO_URI=mongodb://host.docker.internal:27017/college-db ghcr.io/chdbc-samples/college-schedule:0.3.0-snapshot
+docker run --rm -p 8081:8081 -e MONGO_URI=mongodb://host.docker.internal:27017/retail-db ghcr.io/chdbc-samples/retail-orders:0.3.0-snapshot
 ```
 
 ## Налаштування `MONGO_URI`
 
-За замовчуванням програма використовує адресу `mongodb://localhost:27017/college-db` для підключення до локальної бази даних.
+За замовчуванням програма використовує адресу `mongodb://localhost:27017/retail-db` для підключення до локальної бази даних.
 
 
 ### Підключення до MongoDB Atlas
@@ -64,15 +64,15 @@ docker run --rm -p 8081:8081 -e MONGO_URI=mongodb://host.docker.internal:27017/c
 Для підключення MongoDB Atlas потрібно записати connection string кластера в змінну середовища `MONGO_URI` наприклад:
 
 ```text
-mongodb+srv://<db-username>:<db-password>@<cluster-url>/college-db?retryWrites=true&w=majority
+mongodb+srv://<db-username>:<db-password>@<cluster-url>/retail-db?retryWrites=true&w=majority
 ```
 
 Порядок налаштування:
 1. Створіть кластер у MongoDB Atlas (тариф Free).
 1. Створіть користувача бази даних у розділі Database Access і збережіть пароль.
 1. Скопіюйте connection string з кнопки Connect -> Drivers і збережіть його.
-1. Створіть базу даних `college-db` і колекцію `college-schedule` в розділі Data Explorer.
-1. Підставте в URI свої `username`, `password` і назву бази даних `college-db` та збережіть у змінній середовища `MONGO_URI`.
+1. Створіть базу даних `retail-db` і колекцію `retail-orders` в розділі Data Explorer.
+1. Підставте в URI свої `username`, `password` і назву бази даних `retail-db` та збережіть у змінній середовища `MONGO_URI`.
 1. Визначте зовнішню IP-адресу (`curl -s https://api.ipify.org && echo`) і додайте її в Network Access.
 
 Приклад запуску з MongoDB Atlas.
@@ -80,21 +80,21 @@ mongodb+srv://<db-username>:<db-password>@<cluster-url>/college-db?retryWrites=t
 Windows Command Prompt:
 
 ```cmd
-set MONGO_URI=mongodb+srv://db-username:db-password@cluster0.abcde.mongodb.net/college-db?retryWrites=true^&w=majority
+set MONGO_URI=mongodb+srv://db-username:db-password@cluster0.abcde.mongodb.net/retail-db?retryWrites=true^&w=majority
 mvn spring-boot:run
 ```
 
 PowerShell:
 
 ```powershell
-$env:MONGO_URI="mongodb+srv://db-username:db-password@cluster0.abcde.mongodb.net/college-db?retryWrites=true&w=majority"
+$env:MONGO_URI="mongodb+srv://db-username:db-password@cluster0.abcde.mongodb.net/retail-db?retryWrites=true&w=majority"
 mvn spring-boot:run
 ```
 
 Linux/macOS:
 
 ```bash
-export MONGO_URI="mongodb+srv://db-username:db-password@cluster0.abcde.mongodb.net/college-db?retryWrites=true&w=majority"
+export MONGO_URI="mongodb+srv://db-username:db-password@cluster0.abcde.mongodb.net/retail-db?retryWrites=true&w=majority"
 mvn spring-boot:run
 ```
 
