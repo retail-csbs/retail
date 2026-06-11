@@ -1,18 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.college</groupId>
-  <artifactId>college-schedule-25</artifactId>
+  <groupId>com.retail</groupId>
+  <artifactId>retail-orders</artifactId>
   <packaging>jar</packaging>
   <version>0.3.0-SNAPSHOT</version>
-  <name>college-sample</name>
+  <name>retail-app</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <!-- Кодування збірки та ресурсів -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <!-- <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target> -->
     <project.scm.id>github</project.scm.id>
     <testcontainers.version>1.21.4</testcontainers.version>
     <skipUnitTests>false</skipUnitTests>
@@ -55,6 +55,11 @@
         <artifactId>junit-jupiter</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
+    </dependency>
+    <dependency>
+          <groupId>com.opencsv</groupId>
+          <artifactId>opencsv</artifactId>
+          <version>5.9</version>
     </dependency>
     <dependency>
         <groupId>org.testcontainers</groupId>
@@ -110,7 +115,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.5.0</version>
         <configuration>
-          <mainClass>com.college.CollegeApplication</mainClass>
+          <mainClass>com.retail.RetailApplication</mainClass>
         </configuration>
       </plugin>
 
